@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.nightbreedlabs.BeatsControl</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Beats Control</name>
+  <summary>Control Beats Studio3 headphones on Linux</summary>
+  <description><p>Unofficial app for noise cancelling, battery, volume and audio mode on Beats Studio3 Wireless headphones. Not affiliated with Apple or Beats.</p></description>
+  <launchable type="desktop-id">com.nightbreedlabs.BeatsControl.desktop</launchable>
+  <releases><release version="0.1.0" date="2026-11-02"/></releases>
+</component>

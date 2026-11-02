@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Beats Control
+Comment=Control Beats Studio3 headphones
+Exec=beats-control
+Icon=com.nightbreedlabs.BeatsControl
+Categories=Audio;Settings;HardwareSettings;
+Keywords=headphones;bluetooth;noise;anc;battery;
+StartupNotify=true

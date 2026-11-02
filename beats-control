@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+import sys
+sys.path.insert(0, '/app/share/beats-control')
+from beatscontrol.main import main
+sys.exit(main())

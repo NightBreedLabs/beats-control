@@ -1,0 +1,21 @@
+app-id: com.nightbreedlabs.BeatsControl
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: beats-control
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  - --socket=pulseaudio
+  - --system-talk-name=org.bluez
+  - --talk-name=org.kde.StatusNotifierWatcher
+modules:
+  - name: beats-control
+    buildsystem: simple
+    build-commands:
+      - ./install-files.sh /app
+    sources:
+      - type: dir
+        path: .
