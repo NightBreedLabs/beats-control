@@ -11,6 +11,9 @@ finish-args:
   - --socket=pulseaudio
   - --system-talk-name=org.bluez
   - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.freedesktop.systemd1
+  - --filesystem=xdg-run/pipewire-0
+  - --filesystem=xdg-config/pipewire/filter-chain.conf.d:create
 modules:
   - name: beats-control
     buildsystem: simple

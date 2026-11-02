@@ -11,6 +11,7 @@ from .protocol import AAP_PSM, AAP_UUID, HANDSHAKE, SUBSCRIBE, set_anc, parse, A
 
 BLUEZ = 'org.bluez'
 DEVICE_IFACE = 'org.bluez.Device1'
+TRANSPORT_IFACE = 'org.bluez.MediaTransport1'
 PROFILE_PATH = '/com/nightbreedlabs/BeatsControl/profile'
 MODALIAS = 'bluetooth:v004Cp2009'
 PROFILE_XML = '''<node><interface name="org.bluez.Profile1">
@@ -23,7 +24,10 @@ PROFILE_XML = '''<node><interface name="org.bluez.Profile1">
 class Headphones(GObject.Object):
     """Single headphone device state, updated from BlueZ and the control channel."""
 
-    __gsignals__ = {'changed': (GObject.SignalFlags.RUN_FIRST, None, ())}
+    __gsignals__ = {
+        'changed': (GObject.SignalFlags.RUN_FIRST, None, ()),
+        'volume-pressed': (GObject.SignalFlags.RUN_FIRST, None, (int, int)),
+    }
 
     def __init__(self):
         super().__init__()
@@ -34,6 +38,9 @@ class Headphones(GObject.Object):
         self.charging = False
         self.control_ready = False
         self.error = None
+        self.transport = None
+        self.volume = None
+        self.expected_volume = None
         self._sock = None
         self._watch = 0
         self._retry = 0
@@ -45,6 +52,7 @@ class Headphones(GObject.Object):
         self._object_id = self.bus.register_object(PROFILE_PATH, info, self._profile_call)
         Gio.bus_watch_name_on_connection(self.bus, BLUEZ, Gio.BusNameWatcherFlags.NONE, self._bluez_up, self._bluez_down)
         self._subscriptions.append(self.bus.signal_subscribe(BLUEZ, 'org.freedesktop.DBus.Properties', 'PropertiesChanged', None, DEVICE_IFACE, Gio.DBusSignalFlags.NONE, self._on_properties))
+        self._subscriptions.append(self.bus.signal_subscribe(BLUEZ, 'org.freedesktop.DBus.Properties', 'PropertiesChanged', None, TRANSPORT_IFACE, Gio.DBusSignalFlags.NONE, self._on_transport))
         for name in ('InterfacesAdded', 'InterfacesRemoved'):
             self._subscriptions.append(self.bus.signal_subscribe(BLUEZ, 'org.freedesktop.DBus.ObjectManager', name, '/', None, Gio.DBusSignalFlags.NONE, lambda *a: self._refresh()))
 
@@ -114,12 +122,19 @@ class Headphones(GObject.Object):
             return
         previous = self.path
         self.path, self.props = None, {}
-        for path, interfaces in reply.unpack()[0].items():
+        objects = reply.unpack()[0]
+        for path, interfaces in objects.items():
             device = interfaces.get(DEVICE_IFACE)
             if device and str(device.get('Modalias', '')).startswith(MODALIAS):
                 self.path, self.props = path, dict(device)
                 if device.get('Connected'):
                     break
+        self.transport, self.volume = None, None
+        for path, interfaces in objects.items():
+            transport = interfaces.get(TRANSPORT_IFACE)
+            if self.path and transport and path.startswith(self.path + '/'):
+                self.transport = path
+                self.volume = transport.get('Volume')
         if previous != self.path:
             self._close()
         self.emit('changed')
@@ -136,6 +151,26 @@ class Headphones(GObject.Object):
                 GLib.timeout_add(1200, self._ensure_channel)
             else:
                 self._close()
+        self.emit('changed')
+
+    def _on_transport(self, _bus, _sender, path, _iface, _signal, params):
+        _name, changed, _invalid = params.unpack()
+        if path != self.transport or 'Volume' not in changed:
+            return
+        value, old = changed['Volume'], self.volume
+        self.volume = value
+        if value == self.expected_volume:
+            self.expected_volume = None
+        elif old is not None and value != old:
+            self.emit('volume-pressed', old, value)
+        self.emit('changed')
+
+    def set_volume(self, value):
+        value = max(0, min(127, int(value)))
+        if not self.transport or value == self.volume:
+            return
+        self.volume, self.expected_volume = value, value
+        self._call(self.transport, 'org.freedesktop.DBus.Properties', 'Set', GLib.Variant('(ssv)', (TRANSPORT_IFACE, 'Volume', GLib.Variant('q', value))))
         self.emit('changed')
 
     def _ensure_channel(self):
