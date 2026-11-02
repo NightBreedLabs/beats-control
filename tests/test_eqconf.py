@@ -43,6 +43,7 @@ class EqConf(unittest.TestCase):
         self.assertIn('target.object = "bluez_output.X.1"', text)
         self.assertEqual(text.count('type = builtin'), 33)
         self.assertIn('filter.smart = true', text)
+        self.assertIn('state.restore-props = false', text)
         self.assertIn('filter.smart.target = { node.name = "bluez_output.X.1" }', text)
         self.assertNotIn('capture.volumes', text)
         self.assertEqual(text.count('input ='), 32)

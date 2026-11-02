@@ -144,6 +144,7 @@ context.modules = [
             capture.props = {{
                 node.name = "{SINK_NAME}"
                 media.class = Audio/Sink
+                state.restore-props = false
                 filter.smart = true
                 filter.smart.name = "{SINK_NAME}"
                 filter.smart.target = {{ node.name = "{target}" }}

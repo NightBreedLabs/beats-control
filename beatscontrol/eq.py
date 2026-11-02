@@ -162,6 +162,7 @@ class Equalizer:
         def check(sinks):
             if any(s.get('name') == eqconf.SINK_NAME for s in sinks):
                 self.active, self.tries = True, 0
+                self._unity()
                 self._easyeffects_bypass(True, lambda: self._route_easyeffects(True, self._settled))
             elif left:
                 GLib.timeout_add(250, lambda: self._wait(left - 1) or GLib.SOURCE_REMOVE)
@@ -169,6 +170,11 @@ class Equalizer:
                 self._kill()
                 self._failed()
         self._sinks(check)
+
+    def _unity(self):
+        """Volume belongs to the headphones. Any cut on this sink is lost resolution."""
+        _run(['pactl', 'set-sink-mute', eqconf.SINK_NAME, '0'])
+        _run(['pactl', 'set-sink-volume', eqconf.SINK_NAME, '100%'])
 
     def _settled(self):
         self.settle_count = 2
@@ -181,6 +187,7 @@ class Equalizer:
         if not self.active or self.busy:
             self.settle_source = 0
             return GLib.SOURCE_REMOVE
+        self._unity()
         self._easyeffects_bypass(True, lambda: self._route_easyeffects(True, lambda: None))
         if self.settle_count > 0:
             return GLib.SOURCE_CONTINUE
