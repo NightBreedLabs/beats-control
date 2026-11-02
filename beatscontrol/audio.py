@@ -3,8 +3,10 @@ import json
 
 from gi.repository import Gio, GLib
 
-MUSIC = 'a2dp-sink'
+AAC = 'a2dp-sink'
+SBC_XQ = 'a2dp-sink-sbc_xq'
 CALLS = 'headset-head-unit'
+MODES = (AAC, SBC_XQ, CALLS)
 
 
 def _run(args, done=None):
@@ -30,7 +32,7 @@ def _key(address):
 
 
 def read_state(address, done):
-    """Call done(volume_percent or None, muted, profile or None)."""
+    """Call done(volume_percent or None, muted, profile or None), ignoring the EQ sink."""
     key = _key(address)
 
     def got_cards(cards_text, volume, muted):
@@ -64,3 +66,16 @@ def set_volume(address, percent):
 
 def set_profile(address, profile, done=None):
     _run(['set-card-profile', f'bluez_card.{_key(address)}', profile], done)
+
+
+def is_playing(address, done):
+    key = _key(address)
+
+    def check(text):
+        done(any(key in s.get('name', '') and s.get('state') == 'RUNNING' for s in json.loads(text or '[]')))
+    _run(['--format=json', 'list', 'sinks'], check)
+
+
+def percent(value):
+    """The headphones report 0 to 127. PipeWire shows that value as a plain percentage."""
+    return round(value * 100 / 127)

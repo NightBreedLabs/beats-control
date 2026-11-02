@@ -8,7 +8,8 @@ b=.flatpak; rm -rf "$b/app"; mkdir -p "$b"
 flatpak build-init "$b/app" "$id" org.gnome.Platform org.gnome.Platform 50
 ./install-files.sh "$b/app/files"
 flatpak build-finish "$b/app" --command=beats-control --share=ipc --socket=wayland --socket=fallback-x11 \
-    --device=dri --socket=pulseaudio --system-talk-name=org.bluez --talk-name=org.kde.StatusNotifierWatcher
+    --device=dri --socket=pulseaudio --system-talk-name=org.bluez --talk-name=org.kde.StatusNotifierWatcher \
+    --talk-name=org.freedesktop.systemd1 --filesystem=xdg-run/pipewire-0 --filesystem=xdg-config/pipewire/filter-chain.conf.d:create
 flatpak build-export "$b/repo" "$b/app" >/dev/null
 flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo "$b/repo" beats-control.flatpak "$id"
 flatpak install --user -y --noninteractive --reinstall ./beats-control.flatpak
