@@ -74,7 +74,7 @@ class Window(Adw.ApplicationWindow):
         self.preset_row = Adw.ComboRow(title='Preset', model=Gtk.StringList.new(self.preset_names))
         self.preset_row.connect('notify::selected', self.on_preset)
         equalizer.add(self.preset_row)
-        self.bypass_row = Adw.SwitchRow(title='Bypass EasyEffects while on', subtitle='Stops two equalizers stacking. Your EasyEffects sound returns when this EQ is off')
+        self.bypass_row = Adw.SwitchRow(title='Bypass EasyEffects while on', subtitle='Stops two equalizers stacking. Needs an optional permission, see the README')
         self.bypass_row.connect('notify::active', self.on_setting, 'eq_bypass_easyeffects')
         equalizer.add(self.bypass_row)
         self.level_row = Adw.ActionRow(title='Output level', subtitle='Only changes with presets or this slider. Lower it if boosted bands distort')
@@ -370,7 +370,7 @@ class App(Adw.Application):
         self.headphones.connect('changed', self.on_changed)
         self.headphones.connect('volume-pressed', self.on_volume_pressed)
         connection = self.get_dbus_connection()
-        self.eq = Equalizer(connection, self.eq_failed, self.on_system_volume)
+        self.eq = Equalizer(connection, self.eq_failed)
         self.tray = Tray(connection, self.show_window, self.toggle_anc, self.quit)
         connection.register_object(CLI_PATH, Gio.DBusNodeInfo.new_for_xml(CLI_XML).interfaces[0], self.on_cli)
         self.hold()
@@ -491,6 +491,8 @@ class App(Adw.Application):
         wanted = self.settings['eq_enabled'] and h.connected and h.control_ready and not self.mode_busy and not self.calls
         self.eq.bypass_easyeffects = self.settings['eq_bypass_easyeffects']
         self.eq.sync(wanted, h.address, self.gains(), self.settings['eq_level'])
+        if not wanted and h.connected and h.control_ready and not self.mode_busy:
+            self.eq.repair(h.address)
 
     def set_mode(self, profile):
         """Change audio mode with the EQ stopped, because the switch replaces the audio output."""
@@ -529,10 +531,6 @@ class App(Adw.Application):
             notice = Gio.Notification.new(f'Beats volume {audio.percent(h.volume)}%')
             notice.set_priority(Gio.NotificationPriority.LOW)
             self.send_notification('volume', notice)
-
-    def on_system_volume(self, value):
-        """The computer's volume control moved the EQ sink, so move the headphones."""
-        self.headphones.set_volume(round(value * 127 / 100))
 
     def check_audio(self, _volume, _muted, profile):
         """A failed Bluetooth transport can leave the card off, with no audio output."""
@@ -603,8 +601,6 @@ class App(Adw.Application):
         elif not h.connected:
             self.audio_checked = False
         self.refresh_eq()
-        if h.volume is not None:
-            self.eq.show_volume(audio.percent(h.volume))
         self.watch_idle()
         title = h.name
         if h.connected and h.battery is not None:

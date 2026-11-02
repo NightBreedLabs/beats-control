@@ -109,8 +109,7 @@ def props(gains, level):
 
 def render(gains, level, target):
     values = clamp(gains)
-    # The sink shows the headphones' real volume. It drives this unlinked control, not the audio.
-    nodes = ['{ type = builtin name = vol label = linear control = { "Mult" = 1.0 } }']
+    nodes = []
     nodes += [f'{{ type = builtin name = pre label = bq_highshelf control = {{ "Freq" = 0 "Q" = 1.0 "Gain" = {level:.2f} }} }}']
     for i, gain in enumerate(values):
         nodes.append(f'{{ type = builtin name = eq{i + 1} label = bq_peaking control = {{ "Freq" = {FREQUENCIES[i]} "Q" = {Q} "Gain" = {gain:.2f} }} }}')
@@ -118,7 +117,16 @@ def render(gains, level, target):
     links = [f'{{ output = "{a}:Out" input = "{b}:In" }}' for a, b in zip(names, names[1:])]
     nl = '\n                '
     return f'''# Written by Beats Control. Changes here are replaced by the app.
+context.properties = {{ core.daemon = false core.name = beats-control-eq }}
+context.spa-libs = {{
+    audio.convert.* = audioconvert/libspa-audioconvert
+    support.*       = support/libspa-support
+}}
 context.modules = [
+    {{ name = libpipewire-module-rt flags = [ ifexists nofail ] }}
+    {{ name = libpipewire-module-protocol-native }}
+    {{ name = libpipewire-module-client-node }}
+    {{ name = libpipewire-module-adapter }}
     {{ name = libpipewire-module-filter-chain
         args = {{
             node.description = "Beats EQ"
@@ -127,9 +135,6 @@ context.modules = [
                 nodes = [
                 {nl.join(nodes)}
                 ]
-                inputs = [ "pre:In" ]
-                outputs = [ "eq{BANDS}:Out" ]
-                capture.volumes = [ {{ control = "vol:Mult" min = 0.0 max = 1.0 scale = cubic }} ]
                 links = [
                 {nl.join(links)}
                 ]
@@ -139,6 +144,9 @@ context.modules = [
             capture.props = {{
                 node.name = "{SINK_NAME}"
                 media.class = Audio/Sink
+                filter.smart = true
+                filter.smart.name = "{SINK_NAME}"
+                filter.smart.target = {{ node.name = "{target}" }}
             }}
             playback.props = {{
                 node.name = "{SINK_NAME}_out"
