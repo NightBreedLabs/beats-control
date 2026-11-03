@@ -2,7 +2,7 @@
 
 Unofficial Linux app for **Beats Studio3 Wireless** headphones, packaged as a Flatpak. It controls noise cancelling, shows live battery, keeps volume in sync, and adds a 32-band equalizer.
 
-> **Made specifically for the Beats Studio3 Wireless.** It has been tested only on one Studio3 (firmware code `0244`) on Bazzite Linux with Niri. It might work with other Beats or Apple headphones, but that has not been tested in any way. The app currently looks only for the Studio3's product ID (`0x2009`), so other models will not be detected without changing the code. Sending these commands to another model could behave differently, so try that at your own risk.
+> **Made specifically for the Beats Studio3 Wireless.** It has been tested only on one Studio3 (firmware code `0244`) on Bazzite Linux with Niri and KDE Plasma. It might work with other Beats or Apple headphones, but that has not been tested in any way. The app currently looks only for the Studio3's product ID (`0x2009`), so other models will not be detected without changing the code. Sending these commands to another model could behave differently, so try that at your own risk.
 
 Not affiliated with, endorsed by, or supported by Apple Inc. or Beats Electronics. Beats and Studio3 are trademarks of their owners.
 
@@ -15,11 +15,12 @@ Not affiliated with, endorsed by, or supported by Apple Inc. or Beats Electronic
 | Volume kept in sync with the headphones and desktop | Tested on a Studio3 |
 | Smaller steps for the headphone volume buttons | Tested on a Studio3 |
 | 32-band EQ with presets, sliders and typed dB values | Response measured, tested on a Studio3 |
+| EQ with EasyEffects running, and with it fully off | Tested on a Studio3 |
 | AAC or SBC-XQ selection | Tested on a Studio3 |
 | Music or Calls audio mode | Tested on a Studio3 |
 | Connect, disconnect and automatic reconnect of controls | Tested on a Studio3 |
-| Run in background, start at login | Tested on Niri |
-| Tray icon with menu | Tested over D-Bus on Niri with Noctalia |
+| Run in background, start at login | Tested on Niri and KDE Plasma |
+| Tray icon with menu | Tested on KDE Plasma, and over D-Bus on Niri |
 | Low battery alert at 20% or below | Not yet triggered |
 | Battery saver and idle disconnect | Not yet triggered |
 | Charging indicator | Not tested while charging |
@@ -27,7 +28,8 @@ Not affiliated with, endorsed by, or supported by Apple Inc. or Beats Electronic
 | Restoring your codec choice, recovering audio left off | Not tested after a reconnect |
 | Name on this computer | Not tested |
 | Install from the single file on an empty Flatpak setup | Tested, app not run on a second PC |
-| KDE Plasma, GNOME and other desktops | Not tested |
+| KDE Plasma on Wayland | Tested, see [docs/TESTING.md](docs/TESTING.md) |
+| GNOME and other desktops | Not tested |
 
 ### Equalizer
 
@@ -35,7 +37,7 @@ The EQ runs on your computer, not in the headphones. It uses 32 third-octave ban
 
 - **Presets:** Flat, Warm, Deep Bass, Vocal, Bright, Treble Boost and Late Night. All except Flat build on a bright base curve tuned by ear on a Studio3.
 - **Moving a band changes only that band.** If a large boost distorts, lower **Output level**.
-- **EasyEffects:** see [EasyEffects users](#easyeffects-users).
+- **EasyEffects:** not required. If you use it, see [EasyEffects users](#easyeffects-users).
 - Calls mode bypasses the EQ.
 
 ### Not available
@@ -88,6 +90,7 @@ The build compiles PipeWire's filter engine from source, so the first one takes 
 | `org.bluez` on the system bus | Finding the headphones and opening the control channel |
 | PipeWire and PulseAudio sockets | Volume, audio mode and the EQ |
 | `org.kde.StatusNotifierWatcher` | The tray icon |
+| `org.mpris.MediaPlayer2.*` on the session bus | Resuming players that an audio mode change paused |
 
 ### EasyEffects users
 
@@ -120,7 +123,7 @@ flatpak run com.nightbreedlabs.BeatsControl --quit
 python3 -m unittest discover -s tests
 ```
 
-Protocol notes are in [docs/PROTOCOL.md](docs/PROTOCOL.md), research findings are in [docs/RESEARCH.md](docs/RESEARCH.md), and Flathub preparation notes are in [docs/FLATHUB.md](docs/FLATHUB.md).
+Protocol notes are in [docs/PROTOCOL.md](docs/PROTOCOL.md), research findings are in [docs/RESEARCH.md](docs/RESEARCH.md), test status is in [docs/TESTING.md](docs/TESTING.md), changes are in [docs/CHANGELOG.md](docs/CHANGELOG.md), and Flathub preparation notes are in [docs/FLATHUB.md](docs/FLATHUB.md).
 
 ## License
 

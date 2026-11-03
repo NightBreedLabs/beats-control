@@ -12,6 +12,7 @@ finish-args:
   - --filesystem=xdg-run/pipewire-0
   - --system-talk-name=org.bluez
   - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=org.mpris.MediaPlayer2.*
 cleanup:
   - /include
   - /lib/pkgconfig

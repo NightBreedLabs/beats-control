@@ -6,7 +6,7 @@ gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Adw, Gio, GLib, Gtk
 
-from . import APP_ID, __version__, audio, autostart, eqconf
+from . import APP_ID, __version__, audio, autostart, eqconf, media
 from .bluez import Headphones
 from .eq import Equalizer
 from .settings import Settings
@@ -501,7 +501,14 @@ class App(Adw.Application):
         self.mode_busy = True
         if profile != audio.CALLS:
             self.settings['audio_mode'] = profile
-        self.refresh_eq()
+        bus = self.get_dbus_connection()
+        players = []
+
+        def start(found):
+            # Record players first, because the switch pauses them.
+            players.extend(found)
+            self.refresh_eq()
+            GLib.timeout_add(200, switch)
 
         def switch():
             if self.eq.active or self.eq.busy:
@@ -520,8 +527,10 @@ class App(Adw.Application):
             self.refresh_eq()
             if self.window:
                 self.window.refresh()
+            for delay in (2000, 5000):
+                GLib.timeout_add(delay, lambda: media.resume(bus, players) or GLib.SOURCE_REMOVE)
             return GLib.SOURCE_REMOVE
-        GLib.timeout_add(200, switch)
+        media.playing(bus, start)
 
     def on_volume_pressed(self, h, old, value):
         step = self.settings['volume_step']

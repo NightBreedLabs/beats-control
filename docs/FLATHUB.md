@@ -12,4 +12,4 @@ Still needed before submitting:
 - **Name and trademark:** check Flathub's rules on using a third party's brand name in the app name and icon, and state clearly that the app is unofficial.
 - **Metainfo:** add screenshots, developer information and a fuller description, then run `flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream` on it.
 - **Manifest:** run the Flathub linter on the manifest, and point the app source at a tagged Git commit instead of a local directory.
-- **Permissions:** expect review questions about `--filesystem=xdg-run/pipewire-0` and the StatusNotifierWatcher access.
+- **Permissions:** expect review questions about `--filesystem=xdg-run/pipewire-0`, the StatusNotifierWatcher access and the `org.mpris.MediaPlayer2.*` wildcard.
