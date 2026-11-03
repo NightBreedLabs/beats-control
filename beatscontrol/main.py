@@ -13,8 +13,8 @@ from .settings import Settings
 from .tray import Tray
 
 
-CLI_PATH = '/com/nightbreedlabs/BeatsControl/cli'
-CLI_IFACE = 'com.nightbreedlabs.BeatsControl.Cli'
+CLI_PATH = '/io/github/NightBreedLabs/BeatsControl/cli'
+CLI_IFACE = 'io.github.NightBreedLabs.BeatsControl.Cli'
 CLI_XML = f'''<node><interface name="{CLI_IFACE}"><method name="Run">
 <arg type="s" direction="in"/><arg type="i" direction="out"/><arg type="s" direction="out"/>
 </method></interface></node>'''
