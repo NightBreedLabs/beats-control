@@ -63,10 +63,18 @@ flatpak install --user ./beats-control.flatpak
 3. Open **Beats Control** from your app launcher, or run:
 
 ```bash
-flatpak run com.nightbreedlabs.BeatsControl
+flatpak run io.github.NightBreedLabs.BeatsControl
 ```
 
 The first install downloads the GNOME runtime, which is several hundred MB if you do not already have it. Everything else is inside the app, including its EQ engine, so there is nothing else to install. To update, download and install the newest release. To remove it:
+
+```bash
+flatpak uninstall io.github.NightBreedLabs.BeatsControl
+```
+
+### Moving from version 0.8.0 or older
+
+Those versions used a different app ID, so install this one alongside and then remove the old one. Your settings stay in the old app's folder and do not carry over.
 
 ```bash
 flatpak uninstall com.nightbreedlabs.BeatsControl
@@ -97,24 +105,24 @@ The build compiles PipeWire's filter engine from source, so the first one takes 
 If EasyEffects is running, the EQ sits after it in the audio chain, so both apply and two equalizers can stack. Turn EasyEffects off or bypass it yourself, or give this app one optional permission so it can bypass EasyEffects while the EQ is on:
 
 ```bash
-flatpak override --user --talk-name=org.freedesktop.systemd1 com.nightbreedlabs.BeatsControl
+flatpak override --user --talk-name=org.freedesktop.systemd1 io.github.NightBreedLabs.BeatsControl
 ```
 
 **That permission is powerful.** It lets the app run commands in your user session, outside the sandbox. It only works with the Flatpak version of EasyEffects, and it assumes EasyEffects should be active when the EQ is off. To undo it:
 
 ```bash
-flatpak override --user --reset com.nightbreedlabs.BeatsControl
+flatpak override --user --reset io.github.NightBreedLabs.BeatsControl
 ```
 
 ## Command line
 
 ```bash
-flatpak run com.nightbreedlabs.BeatsControl --status
-flatpak run com.nightbreedlabs.BeatsControl --anc on      # or off, toggle
-flatpak run com.nightbreedlabs.BeatsControl --eq on       # or off
-flatpak run com.nightbreedlabs.BeatsControl --mode sbc-xq # or aac, calls
-flatpak run com.nightbreedlabs.BeatsControl --background
-flatpak run com.nightbreedlabs.BeatsControl --quit
+flatpak run io.github.NightBreedLabs.BeatsControl --status
+flatpak run io.github.NightBreedLabs.BeatsControl --anc on      # or off, toggle
+flatpak run io.github.NightBreedLabs.BeatsControl --eq on       # or off
+flatpak run io.github.NightBreedLabs.BeatsControl --mode sbc-xq # or aac, calls
+flatpak run io.github.NightBreedLabs.BeatsControl --background
+flatpak run io.github.NightBreedLabs.BeatsControl --quit
 ```
 
 ## Tests

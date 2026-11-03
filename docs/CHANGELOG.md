@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0 (unreleased)
+
+- The app ID is now `io.github.NightBreedLabs.BeatsControl`, ready for Flathub. To move from an older version, see the README.
+
 ## 0.8.0 (unreleased)
 
 - The EQ engine is now inside the app, built from PipeWire source. It runs only while the EQ is on, and no host service is needed.

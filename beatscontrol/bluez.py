@@ -12,7 +12,7 @@ from .protocol import AAP_PSM, AAP_UUID, HANDSHAKE, SUBSCRIBE, set_anc, parse, A
 BLUEZ = 'org.bluez'
 DEVICE_IFACE = 'org.bluez.Device1'
 TRANSPORT_IFACE = 'org.bluez.MediaTransport1'
-PROFILE_PATH = '/com/nightbreedlabs/BeatsControl/profile'
+PROFILE_PATH = '/io/github/NightBreedLabs/BeatsControl/profile'
 MODALIAS = 'bluetooth:v004Cp2009'
 PROFILE_XML = '''<node><interface name="org.bluez.Profile1">
 <method name="Release"/>

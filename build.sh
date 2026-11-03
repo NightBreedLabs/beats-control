@@ -3,7 +3,7 @@
 # Needs: flatpak install flathub org.flatpak.Builder org.gnome.Sdk//50
 set -euo pipefail
 cd "$(dirname "$0")"
-id=com.nightbreedlabs.BeatsControl
+id=io.github.NightBreedLabs.BeatsControl
 b=.flatpak
 flatpak run --filesystem="$PWD" org.flatpak.Builder --user --force-clean --state-dir="$b/state" --repo="$b/repo" "$b/app" "$id.yml"
 flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo "$b/repo" beats-control.flatpak "$id"

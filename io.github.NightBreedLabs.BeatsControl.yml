@@ -1,4 +1,4 @@
-app-id: com.nightbreedlabs.BeatsControl
+app-id: io.github.NightBreedLabs.BeatsControl
 runtime: org.gnome.Platform
 runtime-version: '50'
 sdk: org.gnome.Sdk
